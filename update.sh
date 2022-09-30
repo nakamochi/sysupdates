@@ -30,7 +30,7 @@ fi
 date > $LOGFILE
 
 # fetch updates from remove
-cd "$REPO_DIR"
+cd "$REPODIR"
 {
 git fetch origin             # in case the refspec is unknown locally yet
 git reset --hard HEAD        # remove local changes
