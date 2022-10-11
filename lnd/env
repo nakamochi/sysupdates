@@ -28,7 +28,7 @@ lnd_svc_install() {
 sv start bitcoind || exit 1
 exec chpst -u lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
 EOF
-    chmod +x /etc/sv/lnd/run
+    chmod +x /etc/sv/lnd/run.new
     test -f /etc/sv/lnd/run && diff /etc/sv/lnd/run /etc/sv/lnd/run.new
     if [ $? -ne 0 ]; then
         sv -w 600 stop lnd || printf "ERROR: sv stop lnd failed\n" 1>&2
@@ -36,6 +36,9 @@ EOF
         sv start lnd || printf "ERROR: sv start lnd failed\n" 1>&2
     fi
     rm -f /etc/sv/lnd/run.new
+    # whatever happened above, try to ensure the service is up
+    chmod +x /etc/sv/lnd/run
+    [ ! -f /etc/sv/lnd/down ] && sv start lnd
 }
 
 lnd_cli_install() {
