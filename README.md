@@ -5,7 +5,14 @@ of text/source code. a node periodically runs the `update.sh` script which pulls
 the repo to receive updates executes `apply.sh`. the latter then makes changes
 and updates the operating system.
 
-typical examples are: upgrade bitcoind, lnd and other services, update system
+at the moment, all updates are executed in form of shell scripts. these are
+error-prone and hard to reason about in a comprehesive way once the codebase
+gets sufficiently large. the short term goal is to migrate shell scripts to
+something more managaeble like [saltstack](https://github.com/saltstack/salt)
+but with less resource requirements, suitable for embedded devices without
+python dependencies.
+
+typical update examples are: upgrade bitcoind, lnd and other services, system
 packages, improve configuration of components such as firewall.
 the run sequence on the node is approximately as follows:
 
