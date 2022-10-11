@@ -5,7 +5,7 @@
 exit_code=0
 
 # base os
-./base/void-pkg.sh || exit 1
+./base/voidlinux.sh || exit 1
 
 # lnd lightning
 . ./lnd/env
