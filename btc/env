@@ -1,0 +1,59 @@
+BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-24.0.1
+BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-24.0.1/bitcoin-24.0.1-aarch64-linux-gnu.tar.gz
+BITCOIN_CORE_SHA256_AARCH64=0b48b9e69b30037b41a1e6b78fb7cbcc48c7ad627908c99686e81f3802454609
+
+BITCOIN_HOME=/home/bitcoind
+
+bitcoin_core_bin_install() {
+    cd $BITCOIN_HOME
+    local targz=$BITCOIN_CORE_VERSION_DIR_AARCH64.tar.gz
+    test -f $BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoind && return 0;
+    curl -sSL -o $targz "$BITCOIN_CORE_URL_AARCH64"
+    if [ $? -ne 0 ]; then
+        printf "ERROR: unable to download $BITCOIN_CORE_URL_AARCH64\n" 1>&2
+        return 1
+    fi
+    printf "$BITCOIN_CORE_SHA256_AARCH64 $targz" | sha256sum --check
+    [ $? -ne 0 ] && return 1
+    tar -C $BITCOIN_HOME --no-same-owner -xf $targz
+    rm -f $targz
+    return $?
+}
+
+bitcoind_svc_install() {
+    local svdir=/etc/sv/bitcoind
+    mkdir -p $svdir
+    cat <<EOF > $svdir/run.new
+#!/bin/sh
+exec chpst -u bitcoind $BITCOIN_HOME/$BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoind -conf=$BITCOIN_HOME/mainnet.conf 2>&1
+EOF
+    chmod +x $svdir/run.new
+    test -f $svdir/run && diff $svdir/run $svdir/run.new
+    if [ $? -ne 0 ]; then
+        mv $svdir/run.new $svdir/run
+        # don't touch the actual service if on manual control - the down file
+        test -f $svdir/down && return 0
+        sv -w 600 stop bitcoind || printf "ERROR: sv stop bitcoind failed\n" 1>&2
+        sv start bitcoind || printf "ERROR: sv start bitcoind failed\n" 1>&2
+    fi
+    rm -f $svdir/run.new
+}
+
+bitcoin_cli_install() {
+    mkdir -p /opt/bin
+    cat <<EOF > /opt/bin/bitcoin-cli.sh
+#!/bin/sh
+set -eu
+CLI=$BITCOIN_HOME/$BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoin-cli
+DATA=/ssd/bitcoind/mainnet
+CHAIN=main
+exec doas -u bitcoind \$CLI -datadir=\$DATA -chain=\$CHAIN "\$@"
+EOF
+    chmod +x /opt/bin/bitcoin-cli.sh
+}
+
+bitcoin_apply() {
+    bitcoin_core_bin_install || return 1
+    bitcoind_svc_install || return 1
+    bitcoin_cli_install || return 1
+}

@@ -7,11 +7,14 @@ exit_code=0
 # base os
 ./base/voidlinux.sh || exit 1
 
+# bitcoin core
+. ./btc/env
+bitcoin_apply || exit_code=$?
+
 # lnd lightning
 . ./lnd/env
 lnd_apply || exit_code=$?
 
-# TODO: bitcoind
 # TODO: electrs
 # TODO: nd and ngui
 
