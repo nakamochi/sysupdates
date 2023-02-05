@@ -9,6 +9,7 @@
 # after user confirmation.
 
 # git branch to pull from. defaults to master.
+# another value is "dev", for a development aka unstable version.
 BRANCH="${1:-master}"
 # output everything to a temp file and print its contents only in case of an error,
 # so that when run via a cronjob, the output is empty on success which prevents
@@ -45,6 +46,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # run repo's update script
+export SYSUPDATES_CHANNEL="$BRANCH"
 ./apply.sh >> $LOGFILE 2>&1
 if [ $? -ne 0 ]; then
     echo "ERROR: apply failed"

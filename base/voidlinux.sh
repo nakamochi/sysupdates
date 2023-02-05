@@ -1,4 +1,8 @@
 #!/bin/sh
+# base OS tweaks.
+# the script assumes SYSUPDATES_CHANNEL env var is set to the desired changes
+# channel, whatever the update.sh accept which is typically "dev" or "master".
+
 # try to ensure sysupdates are running regularily before doing anoything else
 xbps-install -y snooze
 ln -sfT /etc/sv/snooze-hourly /var/service/snooze-hourly
@@ -11,7 +15,7 @@ if [ ! -f /etc/cron.hourly/sysupdate ]; then
         # run updates approx. every hour
         cat <<EOF > /etc/cron.hourly/sysupdate
 #!/bin/sh
-exec /ssd/sysupdates/update.sh
+exec /ssd/sysupdates/update.sh "$SYSUPDATES_CHANNEL"
 EOF
         chmod +x /etc/cron.hourly/sysupdate
     fi
