@@ -13,9 +13,9 @@ if [ ! -f /etc/cron.hourly/sysupdate ]; then
 #!/bin/sh
 exec /ssd/sysupdates/update.sh
 EOF
+        chmod +x /etc/cron.hourly/sysupdate
     fi
 fi
-chmod +x /etc/cron.hourly/sysupdate
 
 # install required packages and config files
 set -e
