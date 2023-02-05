@@ -1,6 +1,6 @@
-LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.15.4-beta
-LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.15.4-beta/lnd-linux-arm64-v0.15.4-beta.tar.gz
-LND_SHA256_AARCH64=12d4ce1c3340e4fde4c691f426399c5bc9eb929336a4705c27ee9a83bc58ae65
+LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.15.5-beta
+LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.15.5-beta/lnd-linux-arm64-v0.15.5-beta.tar.gz
+LND_SHA256_AARCH64=12c97e9924a136a1e730694789fb00830bd1be40e23c32db95f0336f15719618
 
 LND_HOME=/home/lnd
 
