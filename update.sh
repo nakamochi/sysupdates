@@ -46,6 +46,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # run repo's update script
+export SYSUPDATES_ROOTDIR="$REPODIR"
 export SYSUPDATES_CHANNEL="$BRANCH"
 ./apply.sh >> $LOGFILE 2>&1
 if [ $? -ne 0 ]; then
