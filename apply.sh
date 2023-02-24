@@ -10,6 +10,11 @@ rootdir="$SYSUPDATES_ROOTDIR"
 cd "$rootdir"
 ./base/voidlinux.sh || exit 1
 
+# nakamochi daemon and gui (ndg)
+cd "$rootdir"
+. ./ndg/env
+ndg_apply || exit_code=$?
+
 # bitcoin core
 cd "$rootdir"
 . ./btc/env
@@ -21,6 +26,5 @@ cd "$rootdir"
 lnd_apply || exit_code=$?
 
 # TODO: electrs
-# TODO: nd and ngui
 
 exit $exit_code

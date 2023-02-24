@@ -1,0 +1,47 @@
+NDG_VERSION=v0.1.0
+NDG_URL_AARCH64=https://git.qcode.ch/attachments/7bfd2225-2b6b-4420-aacf-ae4d16581ed5
+NDG_SHA256_AARCH64=6ae350b7e75102a88ec65c8bd0e7c82e473e438b9b80ea4582a5a4313ec9c17d
+
+NDG_HOME=/home/uiuser
+NDG_BINDIR=$NDG_HOME/$NDG_VERSION
+
+ndg_bin_install() {
+    cd $NDG_HOME
+    test -f $NDG_BINDIR/nd && return 0;
+    local targz="ndg-$NDG_VERSION.tar.gz"
+    curl -sSL -o "$targz" "$NDG_URL_AARCH64"
+    if [ $? -ne 0 ]; then
+        printf "ERROR: unable to download $NDG_URL_AARCH64\n" 1>&2
+        return 1
+    fi
+    printf "$NDG_SHA256_AARCH64 $targz" | sha256sum --check
+    [ $? -ne 0 ] && return 1
+    mkdir -p $NDG_BINDIR
+    tar -C $NDG_BINDIR --no-same-owner -xf "$targz"
+    rm -f "$targz"
+    return $?
+}
+
+ndg_svc_install() {
+    local svdir=/etc/sv/nd
+    mkdir -p $svdir
+    cat <<EOF > $svdir/run.new
+#!/bin/sh
+exec $NDG_BINDIR/nd -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
+EOF
+    chmod +x $svdir/run.new
+    test -f $svdir/run && diff $svdir/run $svdir/run.new
+    if [ $? -ne 0 ]; then
+        mv $svdir/run.new $svdir/run
+        # don't touch the actual service if on manual control - the down file
+        test -f $svdir/down && return 0
+        sv stop nd || printf "ERROR: sv stop nd failed\n" 1>&2
+        sv start nd || printf "ERROR: sv start nd failed\n" 1>&2
+    fi
+    rm -f $svdir/run.new
+}
+
+ndg_apply() {
+    ndg_bin_install || return 1
+    ndg_svc_install || return 1
+}
