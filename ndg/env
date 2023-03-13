@@ -25,6 +25,19 @@ ndg_bin_install() {
 ndg_svc_install() {
     local svdir=/etc/sv/nd
     mkdir -p $svdir
+
+    cat <<EOF > $svdir/finish.new
+#!/bin/sh
+# workaround https://git.qcode.ch/nakamochi/ndg/issues/17
+pkill ngui
+EOF
+    chmod +x $svdir/finish.new
+    test -f $svdir/finish && diff $svdir/finish $svdir/finish.new
+    if [ $? -ne 0 ]; then
+        mv $svdir/finish.new $svdir/finish
+    fi
+    rm -f $svdir/finish.new
+
     cat <<EOF > $svdir/run.new
 #!/bin/sh
 exec $NDG_BINDIR/nd -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
