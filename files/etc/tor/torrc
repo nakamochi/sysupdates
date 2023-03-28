@@ -1,0 +1,19 @@
+# tor daemon configuration based on
+# https://gitlab.torproject.org/tpo/core/tor/-/blob/main/src/config/torrc.sample.in
+#
+# NOTE: this file is auto-updated by nakamochi sysupdates
+# https://git.qcode.ch/nakamochi/sysupdates
+
+User tor
+Log notice syslog
+DataDirectory /ssd/tor
+
+# bitcoin P2P service over tor
+HiddenServiceDir /ssd/tor/bitcoind/
+HiddenServicePort 8333 127.0.0.1:8334
+
+# lnd lightning P2P, RPC and REST over tor
+HiddenServiceDir /ssd/tor/lnd/
+HiddenServicePort 9735 127.0.0.1:9735
+HiddenServicePort 10009 127.0.0.1:10009
+HiddenServicePort 10010 127.0.0.1:10010

@@ -9,6 +9,8 @@ rootdir="$SYSUPDATES_ROOTDIR"
 # base os
 cd "$rootdir"
 ./base/voidlinux.sh || exit 1
+cd "$rootdir"
+./base/tor.sh || exit_code=$?
 
 # nakamochi daemon and gui (ndg)
 cd "$rootdir"
