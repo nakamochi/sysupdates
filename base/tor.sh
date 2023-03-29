@@ -1,6 +1,5 @@
 #!/bin/sh
 # the script installs tor and its config file from files/etc/tor/torrc.
-set -e
 xbps-install -y tor
 conffile=etc/tor/torrc
 test -f /$conffile && diff /$conffile files/$conffile
