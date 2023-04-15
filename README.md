@@ -30,3 +30,25 @@ the `update.sh` script once a day. The script requires `REPODIR` and `LOGFILE`
 env variables set.
 
 TODO: add a list of supported platforms; the "native" is void linux.
+
+## testing a live change
+
+the procedure to run a modified sysupdate on the device while ssh'ed into
+the instance.
+
+first, make sure periodic updates are disabled:
+
+    chmod -x /etc/cron.hourly/sysupdate
+
+then set required env variables and run the apply script:
+
+    cd /ssd/sysupdates
+    export SYSUPDATES_ROOTDIR=$PWD
+    ./apply.sh
+
+to reactivate periodic sysupdates, flip the `x` bit:
+
+    chmod +x /etc/cron.hourly/sysupdate
+
+note that the periodic `sysupdate` script will revert the repo to the latest
+commit of the branch specified in the script or `master` as the default.
