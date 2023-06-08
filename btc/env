@@ -2,7 +2,10 @@ BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-24.0.1
 BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-24.0.1/bitcoin-24.0.1-aarch64-linux-gnu.tar.gz
 BITCOIN_CORE_SHA256_AARCH64=0b48b9e69b30037b41a1e6b78fb7cbcc48c7ad627908c99686e81f3802454609
 
+# binaries and config root; data is elsewhere, in /ssd/bitcoind as per conf file.
 BITCOIN_HOME=/home/bitcoind
+# no root slash since it's combined with other path prefixes.
+BITCOIN_SVDIR=etc/sv/bitcoind
 
 bitcoin_core_bin_install() {
     cd $BITCOIN_HOME
@@ -21,22 +24,31 @@ bitcoin_core_bin_install() {
 }
 
 bitcoind_svc_install() {
-    local svdir=/etc/sv/bitcoind
-    mkdir -p $svdir
-    cat <<EOF > $svdir/run.new
+    # service directories
+    mkdir -p /$BITCOIN_SVDIR
+    mkdir -p /$BITCOIN_SVDIR/log
+
+    # logging facility
+    if [ ! -f /$BITCOIN_SVDIR/log/run ]; then
+        cp $SYSUPDATES_ROOTDIR/files/$BITCOIN_SVDIR/log/run /$BITCOIN_SVDIR/log/
+        chmod +x /$BITCOIN_SVDIR/log/run
+    fi
+
+    # the actual bitcoin service
+    cat <<EOF > /$BITCOIN_SVDIR/run.new
 #!/bin/sh
 exec chpst -u bitcoind $BITCOIN_HOME/$BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoind -conf=$BITCOIN_HOME/mainnet.conf 2>&1
 EOF
-    chmod +x $svdir/run.new
-    test -f $svdir/run && diff $svdir/run $svdir/run.new
+    chmod +x /$BITCOIN_SVDIR/run.new
+    test -f /$BITCOIN_SVDIR/run && diff /$BITCOIN_SVDIR/run /$BITCOIN_SVDIR/run.new
     if [ $? -ne 0 ]; then
-        mv $svdir/run.new $svdir/run
+        mv /$BITCOIN_SVDIR/run.new /$BITCOIN_SVDIR/run
         # don't touch the actual service if on manual control - the down file
-        test -f $svdir/down && return 0
+        test -f /$BITCOIN_SVDIR/down && return 0
         sv -w 600 stop bitcoind || printf "ERROR: sv stop bitcoind failed\n" 1>&2
         sv start bitcoind || printf "ERROR: sv start bitcoind failed\n" 1>&2
     fi
-    rm -f $svdir/run.new
+    rm -f /$BITCOIN_SVDIR/run.new
 }
 
 bitcoin_cli_install() {

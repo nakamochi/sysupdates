@@ -2,7 +2,10 @@ LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.16.2-beta
 LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.16.2-beta/lnd-linux-arm64-v0.16.2-beta.tar.gz
 LND_SHA256_AARCH64=21e2b6640e06c84c43c5610f7f7613f609cdb09129e6704772436d6209a862af
 
+# binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
+# no root slash since it's combined with other path prefixes.
+LND_SVDIR=etc/sv/lnd
 
 lnd_bin_install() {
     cd $LND_HOME
@@ -21,24 +24,34 @@ lnd_bin_install() {
 }
 
 lnd_svc_install() {
-    mkdir -p /etc/sv/lnd
-    cat <<EOF > /etc/sv/lnd/run.new
+    # service directories
+    mkdir -p /$LND_SVDIR
+    mkdir -p /$LND_SVDIR/log
+
+    # logging facility
+    if [ ! -f /$LND_SVDIR/log/run ]; then
+        cp $SYSUPDATES_ROOTDIR/files/$LND_SVDIR/log/run /$LND_SVDIR/log/
+        chmod +x /$LND_SVDIR/log/run
+    fi
+
+    # the actual lnd service
+    cat <<EOF > /$LND_SVDIR/run.new
 #!/bin/sh
 [ -r conf ] && . ./conf
 sv start bitcoind || exit 1
 exec chpst -u lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
 EOF
-    chmod +x /etc/sv/lnd/run.new
-    test -f /etc/sv/lnd/run && diff /etc/sv/lnd/run /etc/sv/lnd/run.new
+    chmod +x /$LND_SVDIR/run.new
+    test -f /$LND_SVDIR/run && diff /$LND_SVDIR/run /$LND_SVDIR/run.new
     if [ $? -ne 0 ]; then
         sv -w 600 stop lnd || printf "ERROR: sv stop lnd failed\n" 1>&2
-        mv /etc/sv/lnd/run.new /etc/sv/lnd/run
+        mv /$LND_SVDIR/run.new /$LND_SVDIR/run
         sv start lnd || printf "ERROR: sv start lnd failed\n" 1>&2
     fi
-    rm -f /etc/sv/lnd/run.new
+    rm -f /$LND_SVDIR/run.new
     # whatever happened above, try to ensure the service is up
-    chmod +x /etc/sv/lnd/run
-    [ ! -f /etc/sv/lnd/down ] && sv start lnd
+    chmod +x /$LND_SVDIR/run
+    [ ! -f /$LND_SVDIR/down ] && sv start lnd
 }
 
 lnd_cli_install() {
