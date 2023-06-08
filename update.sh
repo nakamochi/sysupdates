@@ -30,7 +30,7 @@ fi
 # start of the sysupdate; trim prevously logged runs
 date > $LOGFILE
 
-# fetch updates from remove
+# fetch updates from remote
 cd "$REPODIR"
 {
 git fetch origin             # in case the refspec is unknown locally yet
