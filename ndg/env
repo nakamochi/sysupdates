@@ -1,6 +1,6 @@
-NDG_VERSION=v0.1.1
-NDG_URL_AARCH64=https://git.qcode.ch/attachments/85470b94-6661-4d5b-be7a-3102505dd072
-NDG_SHA256_AARCH64=49167e751a87d1de20456670f20f58eb76b41b4796fcaed72fdd0721bb2634c0
+NDG_VERSION=v0.2.0
+NDG_URL_AARCH64=https://git.qcode.ch/attachments/60c970b8-80fc-4b46-8beb-4167629f8b06
+NDG_SHA256_AARCH64=bc0e1c6aad09ad27377e89ddb1f27ee4eb6f3c0e77c7ef588be246a25d7c5e6a
 
 NDG_HOME=/home/uiuser
 NDG_BINDIR=$NDG_HOME/$NDG_VERSION
@@ -26,18 +26,6 @@ ndg_svc_install() {
     local svdir=/etc/sv/nd
     mkdir -p $svdir
 
-    cat <<EOF > $svdir/finish.new
-#!/bin/sh
-# workaround https://git.qcode.ch/nakamochi/ndg/issues/17
-pkill ngui
-EOF
-    chmod +x $svdir/finish.new
-    test -f $svdir/finish && diff $svdir/finish $svdir/finish.new
-    if [ $? -ne 0 ]; then
-        mv $svdir/finish.new $svdir/finish
-    fi
-    rm -f $svdir/finish.new
-
     cat <<EOF > $svdir/run.new
 #!/bin/sh
 exec $NDG_BINDIR/nd -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
@@ -49,6 +37,11 @@ EOF
         # don't touch the actual service if on manual control - the down file
         test -f $svdir/down && return 0
         sv stop nd || printf "ERROR: sv stop nd failed\n" 1>&2
+
+        # a remnant from https://git.qcode.ch/nakamochi/ndg/issues/17
+        # no longer needed
+        test -f $svdir/finish && rm -f $svdir/finish
+
         sv start nd || printf "ERROR: sv start nd failed\n" 1>&2
     fi
     rm -f $svdir/run.new
