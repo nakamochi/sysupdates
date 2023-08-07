@@ -1,6 +1,6 @@
-NDG_VERSION=v0.2.0-1-gff883042-dev
-NDG_URL_AARCH64=https://git.qcode.ch/attachments/b3d30f19-0f24-445f-bc31-376b41332f8b
-NDG_SHA256_AARCH64=a32462e1bd2c1a12cd5c78889c3d6ac2ab92170729be7a9e04786fdf79a2b37c
+NDG_VERSION=v0.3.0
+NDG_URL_AARCH64=https://git.qcode.ch/attachments/4a37dddd-b1b2-41b3-a7d6-81b46c31d48d
+NDG_SHA256_AARCH64=157a527635b6069ad8c405e90842ead1e8e3ba3c6133c8b0966bd6488825208f
 
 NDG_HOME=/home/uiuser
 NDG_BINDIR=$NDG_HOME/$NDG_VERSION
@@ -49,11 +49,6 @@ EOF
         # don't touch the actual service if on manual control - the down file
         test -f $svdir/down && return 0
         sv stop nd || printf "ERROR: sv stop nd failed\n" 1>&2
-
-        # a remnant from https://git.qcode.ch/nakamochi/ndg/issues/17
-        # no longer needed
-        test -f $svdir/finish && rm -f $svdir/finish
-
         sv start nd || printf "ERROR: sv start nd failed\n" 1>&2
     fi
     rm -f $svdir/run.new
