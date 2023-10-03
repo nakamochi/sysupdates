@@ -1,6 +1,6 @@
-NDG_VERSION=v0.5.0
-NDG_URL_AARCH64=https://git.qcode.ch/attachments/21a234c6-0b48-468b-86eb-a477f743e11d
-NDG_SHA256_AARCH64=5070b087321b0ba7e0b34659f47368998209372971c0fe5f9276d17f86c84380
+NDG_VERSION=v0.4.0
+NDG_URL_AARCH64=https://git.qcode.ch/attachments/86e4f4fa-37a9-4d14-8fb2-92f3c36dc965
+NDG_SHA256_AARCH64=549268143caaa8bbdb6b2038fffe1baf92fce74bc2ff5a498f3fa3fd3b3292c7
 
 NDG_HOME=/home/uiuser
 NDG_BINDIR=$NDG_HOME/$NDG_VERSION
@@ -40,7 +40,7 @@ EOF
 
     cat <<EOF > $svdir/run.new
 #!/bin/sh
-exec $NDG_BINDIR/nd -conf /home/uiuser/conf.json -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
+exec $NDG_BINDIR/nd -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
 EOF
     chmod +x $svdir/run.new
     test -f $svdir/run && diff $svdir/run $svdir/run.new
