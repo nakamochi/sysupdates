@@ -26,6 +26,11 @@ ndg_svc_install() {
     local svdir=/etc/sv/nd
     mkdir -p $svdir
 
+    if [ ! -f $svdir/log/run ]; then
+        mkdir -p $svdir/log
+        ln -sfT /usr/bin/vlogger $svdir/log/run
+    fi
+
     cat <<EOF > $svdir/finish.new
 #!/bin/sh
 # workaround https://git.qcode.ch/nakamochi/ndg/issues/17
