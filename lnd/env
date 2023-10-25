@@ -38,7 +38,14 @@ lnd_svc_install() {
     cat <<EOF > /$LND_SVDIR/run.new
 #!/bin/sh
 [ -r conf ] && . ./conf
-sv start bitcoind || exit 1
+exec 2>&1
+# wait for OS to acquire a clock sync.
+# random date in the past: Oct 22 06:40:00 PM UTC 2023
+while [ "$(date +%s)" -lt 1698000000 ]
+do
+    echo "service start suspended until clock sync"
+    sleep 5
+done
 exec chpst -u lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
 EOF
     chmod +x /$LND_SVDIR/run.new
