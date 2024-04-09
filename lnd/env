@@ -1,6 +1,6 @@
-LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.17.3-beta
-LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.17.3-beta/lnd-linux-arm64-v0.17.3-beta.tar.gz
-LND_SHA256_AARCH64=89fe64338c4d92da25552224bc3adbd32e53283954bc8e4803354b0387782402
+LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.17.4-beta
+LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.17.4-beta/lnd-linux-arm64-v0.17.4-beta.tar.gz
+LND_SHA256_AARCH64=3c3472f3f1c93fef5b4e8989278c7538602c9d7c36c35092251c8bad0abf3cef
 
 # binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
