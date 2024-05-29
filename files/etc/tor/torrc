@@ -2,7 +2,7 @@
 # https://gitlab.torproject.org/tpo/core/tor/-/blob/main/src/config/torrc.sample.in
 #
 # NOTE: this file is auto-updated by nakamochi sysupdates
-# https://git.qcode.ch/nakamochi/sysupdates
+# https://github.com/nakamochi/sysupdates
 
 User tor
 Log notice syslog

@@ -23,7 +23,7 @@ the run sequence on the node is approximately as follows:
 
 at the moment, an on-screen diff and confirmation aren't implemented yet.
 `nd` and `ngui` is where it'll happen,
-in the [ndg](https://git.qcode.ch/nakamochi/ndg) repo.
+in the [ndg](https://github.com/nakamochi/ndg) repo.
 
 when configuring a new node, clone this repo and set up a cron job to execute
 the `update.sh` script once a day. The script requires `REPODIR` and `LOGFILE`

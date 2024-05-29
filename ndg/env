@@ -1,5 +1,5 @@
 NDG_VERSION=v0.8.1
-NDG_URL_AARCH64=https://git.qcode.ch/attachments/8c9a6d54-0691-4835-8158-c6c06fb9846a
+NDG_URL_AARCH64=https://github.com/nakamochi/ndg/releases/download/v0.8.1/ndg-v0.8.1-aarch64.tar.gz
 NDG_SHA256_AARCH64=d67fd26149dd13900125a6ebfc527028110f8f71dfb2ae311f7a9ca0f99ceff0
 
 NDG_HOME=/home/uiuser
@@ -33,7 +33,7 @@ ndg_svc_install() {
 
     cat <<EOF > $svdir/finish.new
 #!/bin/sh
-# workaround https://git.qcode.ch/nakamochi/ndg/issues/17
+# workaround https://github.com/nakamochi/ndg/issues/12
 pkill -9 ngui
 EOF
     chmod +x $svdir/finish.new

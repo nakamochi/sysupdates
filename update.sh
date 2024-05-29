@@ -1,5 +1,5 @@
 #!/bin/sh
-# https://git.qcode.ch/nakamochi/sysupdates
+# https://github.com/nakamochi/sysupdates
 # pull changes from a remote git repo and run the "apply" script.
 # commits are expected to be signed by gpg keys with a sufficient
 # trust level to satisfy git pull --verify-signatures.
@@ -33,6 +33,7 @@ date > $LOGFILE
 # fetch updates from remote
 cd "$REPODIR"
 {
+git remote set-url origin https://github.com/nakamochi/sysupdates.git
 git fetch origin             # in case the refspec is unknown locally yet
 git reset --hard HEAD        # remove local changes
 git clean -fd                # force-delete untracked files
