@@ -12,6 +12,11 @@ exit_code=0
 # defined in the caller script
 rootdir="$SYSUPDATES_ROOTDIR"
 
+# keys
+printf "######## keys\n" 1>&2
+cd "$rootdir"
+./keys/keys.sh || exit 1
+
 # base os
 printf "######## base os\n" 1>&2
 cd "$rootdir"
