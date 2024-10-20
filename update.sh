@@ -11,6 +11,7 @@
 # git branch to pull from. defaults to master.
 # another value is "dev", for a development aka unstable version.
 BRANCH="${1:-master}"
+REMOTE_URL="${2:-https://github.com/nakamochi/sysupdates.git}"
 # output everything to a temp file and print its contents only in case of an error,
 # so that when run via a cronjob, the output is empty on success which prevents
 # needless emails, were any configured.
@@ -33,7 +34,8 @@ date > $LOGFILE
 # fetch updates from remote
 cd "$REPODIR"
 {
-git remote set-url origin https://github.com/nakamochi/sysupdates.git
+echo "Fetching updates from $REMOTE_URL, branch $BRANCH"
+git remote set-url origin "$REMOTE_URL"
 git fetch origin             # in case the refspec is unknown locally yet
 git reset --hard HEAD        # remove local changes
 git clean -fd                # force-delete untracked files
