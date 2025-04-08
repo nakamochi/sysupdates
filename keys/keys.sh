@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 current_keys="$(gpg --list-keys --with-colons | grep '^pub' | cut -d: -f5)"
 last_commit_key_id="$(git log --show-signature | grep "Primary key fingerprint" | head -n 1 | tail -c 20 | tr -d ' ')"
