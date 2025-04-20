@@ -4,6 +4,7 @@ LND_SHA256_AARCH64=3c3472f3f1c93fef5b4e8989278c7538602c9d7c36c35092251c8bad0abf3
 
 # binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
+LND_DATADIR=/ssd/lnd
 # no root slash since it's combined with other path prefixes.
 LND_SVDIR=etc/sv/lnd
 
@@ -72,8 +73,17 @@ EOF
     chmod +x /opt/bin/lncli.sh
 }
 
+lnd_check_changes() {
+    # Old Nakamochis had the unlock file in the home dir, new ones have it in the data dir.
+    if ! [[ -f $LND_DATADIR/unlock-mainnet.txt ]] && [[ -f $LND_HOME/unlock-mainnet.txt ]]; then
+        mv $LND_HOME/unlock-mainnet.txt $LND_DATADIR/
+        ln -s $LND_HOME/unlock-mainnet.txt $LND_DATADIR/unlock-mainnet.txt
+    fi
+}
+
 lnd_apply() {
     lnd_bin_install || return 1
     lnd_svc_install || return 1
     lnd_cli_install || return 1
+    lnd_check_changes || return 1
 }
