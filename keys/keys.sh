@@ -16,11 +16,14 @@ done
 rm "$new_keylist"
 
 # Import new keys
+current_keylist="$(mktemp)"
+echo "$current_keys" > "$current_keylist"
 for keyfile in keys/*.asc; do
     keyid="$(gpg --with-colons "$keyfile" 2>/dev/null | grep '^pub' | cut -d: -f5)"
-    if ! grep -qs "$keyid" <<< "$current_keys"; then
+    if ! grep -qs "$keyid" "$current_keylist"; then
         echo "Importing key $keyid from $keyfile..."
         gpg --import "$keyfile"
         echo -e "trust\n5\ny\n" | gpg --batch --no-tty --command-fd 0 --expert --edit-key "$keyid"
     fi
 done
+rm "$current_keylist"
