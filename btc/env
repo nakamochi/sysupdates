@@ -1,6 +1,6 @@
-BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-28.1
-BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-28.1/bitcoin-28.1-aarch64-linux-gnu.tar.gz
-BITCOIN_CORE_SHA256_AARCH64=6ddb6990690bd4c9a9f4319ed6f6e9c995c85ce5530ee9f120e80ce09e090c44
+BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-29.0
+BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-29.0/bitcoin-29.0-aarch64-linux-gnu.tar.gz
+BITCOIN_CORE_SHA256_AARCH64=7922ac99363dd28f79e57ef7098581fd48ebd1119b412b07e73b1fd19fd0443f
 
 # binaries and config root; data is elsewhere, in /ssd/bitcoind as per conf file.
 BITCOIN_HOME=/home/bitcoind
