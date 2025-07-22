@@ -18,6 +18,9 @@ cd "$rootdir" || exit 1
 ./keys/keys.sh || exit 1
 
 # base os
+printf "######## boot\n" 1>&2
+cd "$rootdir" || exit 1
+./base/boot.sh || exit 1
 printf "######## base os\n" 1>&2
 cd "$rootdir" || exit 1
 ./base/voidlinux.sh || exit 1

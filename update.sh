@@ -41,6 +41,7 @@ if ! {
     git clean -fd &&             # force-delete untracked files
     git checkout "$BRANCH" &&
     git pull --verify-signatures
+    git submodule update --init --recursive
 } >> "$LOGFILE" 2>&1 ; then
     echo "ERROR: git pull failed"
     cat "$LOGFILE"
