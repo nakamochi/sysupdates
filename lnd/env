@@ -1,6 +1,6 @@
-LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.18.4-beta
-LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.18.4-beta/lnd-linux-arm64-v0.18.4-beta.tar.gz
-LND_SHA256_AARCH64=88e030fa9e85949575b8af4743f56c655f132929f627448a1eb198c9ea0147b1
+LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.19.1-beta
+LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.19.1-beta/lnd-linux-arm64-v0.19.1-beta.tar.gz
+LND_SHA256_AARCH64=a541ce7eb2cb4e3c3482625d3420c6de9babedffbddf31bfdf9e2e4f1a9ab08a
 
 # binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
@@ -11,12 +11,12 @@ lnd_bin_install() {
     cd $LND_HOME
     local lnd_targz=$LND_VERSION_DIR_AARCH64.tar.gz
     test -f $LND_VERSION_DIR_AARCH64/lnd && return 0;
-    curl -sSL -o $lnd_targz "$LND_URL_AARCH64"
+    curl -fSL -o $lnd_targz "$LND_URL_AARCH64"
     if [ $? -ne 0 ]; then
         printf "ERROR: unable to download $LND_URL_AARCH64\n" 1>&2
         return 1
     fi
-    printf "$LND_SHA256_AARCH64 $lnd_targz" | sha256sum --check
+    printf '%s  %s\n' "$LND_SHA256_AARCH64" "$lnd_targz" | sha256sum --check
     [ $? -ne 0 ] && return 1
     tar -C $LND_HOME --no-same-owner -xf $lnd_targz
     rm -f $lnd_targz
