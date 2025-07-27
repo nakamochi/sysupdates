@@ -8,7 +8,7 @@ for keyfile in keys/*.asc; do gpg --with-colons "$keyfile" 2>/dev/null | grep '^
 # Remove keys that are no longer present.
 # But, as a safeguard, never allow removal of key that signed last commit.
 for key in $current_keys; do
-    if ! grep -qs "$key" "$new_keylist" && [[ "$key" != "$last_commit_key_id" ]]; then
+    if ! grep -qs "$key" "$new_keylist" && [ "$key" != "$last_commit_key_id" ]; then
         echo "Removing key $key..."
         gpg --batch --yes --delete-keys "$key"
     fi
@@ -23,7 +23,7 @@ for keyfile in keys/*.asc; do
     if ! grep -qs "$keyid" "$current_keylist"; then
         echo "Importing key $keyid from $keyfile..."
         gpg --import "$keyfile"
-        echo -e "trust\n5\ny\n" | gpg --batch --no-tty --command-fd 0 --expert --edit-key "$keyid"
+        printf "trust\n5\ny\n" | gpg --batch --no-tty --command-fd 0 --expert --edit-key "$keyid"
     fi
 done
 rm "$current_keylist"
