@@ -19,27 +19,27 @@ cd "$rootdir"
 
 # base os
 printf "######## base os\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 ./base/voidlinux.sh || exit 1
 printf "######## tor\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 ./base/tor.sh || exit_code=$?
 
 # nakamochi daemon and gui (ndg)
 printf "######## ndg\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 . ./ndg/env
 ndg_apply || exit_code=$?
 
 # bitcoin core
 printf "######## bitcoind\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 . ./btc/env
 bitcoin_apply || exit_code=$?
 
 # lnd lightning
 printf "######## lnd\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 . ./lnd/env
 lnd_apply || exit_code=$?
 

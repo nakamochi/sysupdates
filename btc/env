@@ -1,3 +1,6 @@
+#!/bin/sh
+# shellcheck disable=SC2015,SC3043
+
 BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-29.0
 BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-29.0/bitcoin-29.0-aarch64-linux-gnu.tar.gz
 BITCOIN_CORE_SHA256_AARCH64=7922ac99363dd28f79e57ef7098581fd48ebd1119b412b07e73b1fd19fd0443f
@@ -8,16 +11,14 @@ BITCOIN_HOME=/home/bitcoind
 BITCOIN_SVDIR=etc/sv/bitcoind
 
 bitcoin_core_bin_install() {
-    cd $BITCOIN_HOME
+    cd $BITCOIN_HOME || return 1
     local targz=$BITCOIN_CORE_VERSION_DIR_AARCH64.tar.gz
     test -f $BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoind && return 0;
-    curl -sSL -o $targz "$BITCOIN_CORE_URL_AARCH64"
-    if [ $? -ne 0 ]; then
-        printf "ERROR: unable to download $BITCOIN_CORE_URL_AARCH64\n" 1>&2
+    if ! curl -sSL -o $targz "$BITCOIN_CORE_URL_AARCH64"; then
+        printf "ERROR: unable to download %s\n" "$BITCOIN_CORE_URL_AARCH64" 1>&2
         return 1
     fi
-    printf "$BITCOIN_CORE_SHA256_AARCH64 $targz" | sha256sum --check
-    [ $? -ne 0 ] && return 1
+    printf "%s %s" "$BITCOIN_CORE_SHA256_AARCH64" "$targz" | sha256sum --check || return 1
     tar -C $BITCOIN_HOME --no-same-owner -xf $targz
     rm -f $targz
     return $?
@@ -30,7 +31,7 @@ bitcoind_svc_install() {
 
     # logging facility
     if [ ! -f /$BITCOIN_SVDIR/log/run ]; then
-        cp $SYSUPDATES_ROOTDIR/files/$BITCOIN_SVDIR/log/run /$BITCOIN_SVDIR/log/
+        cp "$SYSUPDATES_ROOTDIR/files/$BITCOIN_SVDIR/log/run" /$BITCOIN_SVDIR/log/
         chmod +x /$BITCOIN_SVDIR/log/run
     fi
 
@@ -40,14 +41,13 @@ bitcoind_svc_install() {
 exec chpst -u bitcoind $BITCOIN_HOME/$BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoind -conf=$BITCOIN_HOME/mainnet.conf 2>&1
 EOF
     chmod +x /$BITCOIN_SVDIR/run.new
-    test -f /$BITCOIN_SVDIR/run && diff /$BITCOIN_SVDIR/run /$BITCOIN_SVDIR/run.new
-    if [ $? -ne 0 ]; then
+    test -f /$BITCOIN_SVDIR/run && diff /$BITCOIN_SVDIR/run /$BITCOIN_SVDIR/run.new || {
         mv /$BITCOIN_SVDIR/run.new /$BITCOIN_SVDIR/run
         # don't touch the actual service if on manual control - the down file
         test -f /$BITCOIN_SVDIR/down && return 0
-        sv -w 600 stop bitcoind || printf "ERROR: sv stop bitcoind failed\n" 1>&2
-        sv start bitcoind || printf "ERROR: sv start bitcoind failed\n" 1>&2
-    fi
+        sv -w 600 stop bitcoind || echo "ERROR: sv stop bitcoind failed" 1>&2
+        sv start bitcoind || echo "ERROR: sv start bitcoind failed" 1>&2
+    }
     rm -f /$BITCOIN_SVDIR/run.new
 }
 
