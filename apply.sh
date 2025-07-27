@@ -14,7 +14,7 @@ rootdir="$SYSUPDATES_ROOTDIR"
 
 # keys
 printf "######## keys\n" 1>&2
-cd "$rootdir"
+cd "$rootdir" || exit 1
 ./keys/keys.sh || exit 1
 
 # base os
@@ -28,18 +28,21 @@ cd "$rootdir" || exit 1
 # nakamochi daemon and gui (ndg)
 printf "######## ndg\n" 1>&2
 cd "$rootdir" || exit 1
+# shellcheck source=/dev/null
 . ./ndg/env
 ndg_apply || exit_code=$?
 
 # bitcoin core
 printf "######## bitcoind\n" 1>&2
 cd "$rootdir" || exit 1
+# shellcheck source=/dev/null
 . ./btc/env
 bitcoin_apply || exit_code=$?
 
 # lnd lightning
 printf "######## lnd\n" 1>&2
 cd "$rootdir" || exit 1
+# shellcheck source=/dev/null
 . ./lnd/env
 lnd_apply || exit_code=$?
 
