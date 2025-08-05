@@ -1,9 +1,10 @@
 #!/bin/sh
 # shellcheck disable=SC2015,SC3043
 
-LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.19.1-beta
-LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.19.1-beta/lnd-linux-arm64-v0.19.1-beta.tar.gz
-LND_SHA256_AARCH64=a541ce7eb2cb4e3c3482625d3420c6de9babedffbddf31bfdf9e2e4f1a9ab08a
+LND_VERSION=0.19.2
+LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v$LND_VERSION-beta
+LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v$LND_VERSION-beta/lnd-linux-arm64-v$LND_VERSION-beta.tar.gz
+LND_SHA256_AARCH64=2940770b0c8da7c9ed876d2d1617aae092f8cd0ba237ca6fa0d677406b12034b
 
 # binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
