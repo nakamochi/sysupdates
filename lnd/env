@@ -1,6 +1,10 @@
-LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v0.19.1-beta
-LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v0.19.1-beta/lnd-linux-arm64-v0.19.1-beta.tar.gz
-LND_SHA256_AARCH64=a541ce7eb2cb4e3c3482625d3420c6de9babedffbddf31bfdf9e2e4f1a9ab08a
+#!/bin/sh
+# shellcheck disable=SC2015,SC3043
+
+LND_VERSION=0.19.2
+LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v$LND_VERSION-beta
+LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v$LND_VERSION-beta/lnd-linux-arm64-v$LND_VERSION-beta.tar.gz
+LND_SHA256_AARCH64=2940770b0c8da7c9ed876d2d1617aae092f8cd0ba237ca6fa0d677406b12034b
 
 # binaries and config root; data is elsewhere, in /ssd/lnd as per lnd conf.
 LND_HOME=/home/lnd
@@ -8,7 +12,7 @@ LND_HOME=/home/lnd
 LND_SVDIR=etc/sv/lnd
 
 lnd_bin_install() {
-    cd $LND_HOME
+    cd $LND_HOME || return 1
     local lnd_targz=$LND_VERSION_DIR_AARCH64.tar.gz
     test -f $LND_VERSION_DIR_AARCH64/lnd && return 0;
     curl -fSL -o $lnd_targz "$LND_URL_AARCH64"
@@ -30,7 +34,7 @@ lnd_svc_install() {
 
     # logging facility
     if [ ! -f /$LND_SVDIR/log/run ]; then
-        cp $SYSUPDATES_ROOTDIR/files/$LND_SVDIR/log/run /$LND_SVDIR/log/
+        cp "$SYSUPDATES_ROOTDIR"/files/$LND_SVDIR/log/run /$LND_SVDIR/log/
         chmod +x /$LND_SVDIR/log/run
     fi
 
@@ -49,12 +53,11 @@ done
 exec chpst -u lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
 EOF
     chmod +x /$LND_SVDIR/run.new
-    test -f /$LND_SVDIR/run && diff /$LND_SVDIR/run /$LND_SVDIR/run.new
-    if [ $? -ne 0 ]; then
+    test -f /$LND_SVDIR/run && diff /$LND_SVDIR/run /$LND_SVDIR/run.new || {
         sv -w 600 stop lnd || printf "ERROR: sv stop lnd failed\n" 1>&2
         mv /$LND_SVDIR/run.new /$LND_SVDIR/run
         sv start lnd || printf "ERROR: sv start lnd failed\n" 1>&2
-    fi
+    }
     rm -f /$LND_SVDIR/run.new
     # whatever happened above, try to ensure the service is up
     chmod +x /$LND_SVDIR/run

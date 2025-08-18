@@ -29,31 +29,29 @@ if [ -z "$NAKAMOCHI_SYSUPDATE_LOCK" ]; then
 fi
 
 # start of the sysupdate; trim prevously logged runs
-date > $LOGFILE
+date > "$LOGFILE"
 
 # fetch updates from remote
-cd "$REPODIR"
-{
-echo "Fetching updates from $REMOTE_URL, branch $BRANCH"
-git remote set-url origin "$REMOTE_URL"
-git fetch origin             # in case the refspec is unknown locally yet
-git reset --hard HEAD        # remove local changes
-git clean -fd                # force-delete untracked files
-git checkout "$BRANCH"
-git pull --verify-signatures
-} >> $LOGFILE 2>&1
-if [ $? -ne 0 ]; then
+cd "$REPODIR" || exit 1
+if ! {
+    echo "Fetching updates from $REMOTE_URL, branch $BRANCH" &&
+    git remote set-url origin "$REMOTE_URL" &&
+    git fetch origin &&          # in case the refspec is unknown locally yet
+    git reset --hard HEAD &&     # remove local changes
+    git clean -fd &&             # force-delete untracked files
+    git checkout "$BRANCH" &&
+    git pull --verify-signatures
+} >> "$LOGFILE" 2>&1 ; then
     echo "ERROR: git pull failed"
-    cat $LOGFILE
+    cat "$LOGFILE"
     exit 1
 fi
 
 # run repo's update script
 export SYSUPDATES_ROOTDIR="$REPODIR"
 export SYSUPDATES_CHANNEL="$BRANCH"
-./apply.sh >> $LOGFILE 2>&1
-if [ $? -ne 0 ]; then
+if ! ./apply.sh >> "$LOGFILE" 2>&1; then
     echo "ERROR: apply failed"
-    cat $LOGFILE
+    cat "$LOGFILE"
     exit 1
 fi
