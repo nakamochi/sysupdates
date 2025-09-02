@@ -40,10 +40,11 @@ if ! {
     git reset --hard HEAD &&     # remove local changes
     git clean -fd &&             # force-delete untracked files
     git checkout "$BRANCH" &&
-    git pull --verify-signatures
+    git pull --verify-signatures &&
+    git submodule sync --recursive &&
     git submodule update --init --recursive
 } >> "$LOGFILE" 2>&1 ; then
-    echo "ERROR: git pull failed"
+    echo "ERROR: repository update failed"
     cat "$LOGFILE"
     exit 1
 fi
