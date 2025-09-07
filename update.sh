@@ -55,4 +55,6 @@ if ! ./apply.sh >> "$LOGFILE" 2>&1; then
     echo "ERROR: apply failed"
     cat "$LOGFILE"
     exit 1
+else
+    git rev-parse --short HEAD > /etc/sysupdates-applied
 fi
