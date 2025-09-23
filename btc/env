@@ -1,9 +1,10 @@
 #!/bin/sh
 # shellcheck disable=SC2015,SC3043
 
-BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-29.0
-BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-29.0/bitcoin-29.0-aarch64-linux-gnu.tar.gz
-BITCOIN_CORE_SHA256_AARCH64=7922ac99363dd28f79e57ef7098581fd48ebd1119b412b07e73b1fd19fd0443f
+BITCOIN_CORE_VERSION=29.1
+BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-$BITCOIN_CORE_VERSION
+BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_CORE_VERSION/bitcoin-$BITCOIN_CORE_VERSION-aarch64-linux-gnu.tar.gz
+BITCOIN_CORE_SHA256_AARCH64=d6be913e1abc5effe57f50630b4bff2f89b38c092182c47f1fcde0ae12afc71c
 
 # binaries and config root; data is elsewhere, in /ssd/bitcoind as per conf file.
 BITCOIN_HOME=/home/bitcoind
