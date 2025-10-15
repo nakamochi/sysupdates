@@ -1,9 +1,9 @@
 #!/bin/sh
 # shellcheck disable=SC2015,SC3043
 
-NDG_VERSION=v0.8.2
+NDG_VERSION=v0.8.3
 NDG_URL_AARCH64=https://github.com/nakamochi/ndg/releases/download/$NDG_VERSION/ndg-$NDG_VERSION-aarch64.tar.gz
-NDG_SHA256_AARCH64=662e8931e45b6e82cedc0c6618177ba97e4ada3b5e162132efef114eb9120651
+NDG_SHA256_AARCH64=13406e87e826db4ec29c93531ee3ad0a0357b8cf6c56eb226c71cadc92fdf8b1
 
 NDG_HOME=/home/uiuser
 NDG_BINDIR=$NDG_HOME/$NDG_VERSION
