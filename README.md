@@ -52,3 +52,27 @@ to reactivate periodic sysupdates, flip the `x` bit:
 
 note that the periodic `sysupdate` script will revert the repo to the latest
 commit of the branch specified in the script or `master` as the default.
+
+## contributing
+
+fork the repo, make changes in a feature branch and submit a pull request.
+feature branch must be based off the latest `dev`.
+
+all commits must be signed using gpg with signature added to your github
+account. to sign a commit, use:
+
+    git commit -S -m "commit message"
+
+all changes must be tested on a physical device before merging to `dev`.
+
+our branch protection rules also require linear history, so use rebase
+instead of merge when updating your feature branch with latest `dev` changes.
+before merging a PR, make sure to rebase on latest `dev` and resolve any
+conflicts.
+
+unless it really makes sense to do otherwise, all changes must be
+incremental, i.e., do not bundle multiple unrelated changes in a single PR.
+each PR should ideally address a single concern only.
+
+see [squashing commits](https://github.com/bitcoin/bitcoin/blob/master/CONTRIBUTING.md#squashing-commits)
+on how to combine multiple commits into one.
