@@ -46,7 +46,7 @@ if [ -z "$XBPS_SELFUPDATE_LOCK" ]; then
         flock --exclusive --timeout 900 "$lockfile" "$0"
 fi
 set -e
-xbps-install -s
+xbps-install -S
 if xbps-install -y -u xbps; then
     exit 0
 fi
