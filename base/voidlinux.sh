@@ -1,4 +1,6 @@
 #!/bin/sh
+# shellcheck disable=SC2154
+
 # base OS tweaks.
 # the script assumes SYSUPDATES_CHANNEL env var is set to the desired changes
 # channel, whatever the update.sh accept which is typically "dev" or "master".
@@ -31,4 +33,34 @@ if [ ! -f /etc/doas.conf ]; then
 permit nopass root
 permit setenv { -ENV PS1=\$DOAS_PS1 SSH_AUTH_SOCK } :wheel
 EOF
+fi
+
+# automatically update xbps package database and xbps itself daily
+# after xbps update, update also whole system to ensure consistency
+if [ ! -f /etc/cron.daily/xbps-selfupdate ]; then
+    cat <<EOF > /etc/cron.daily/xbps-selfupdate
+#!/bin/sh
+BACKUP_XBPS="/usr/local/bin/xbps-install.static"
+if [ -z "\$XBPS_SELFUPDATE_LOCK" ]; then
+    lockfile=/run/lock/xbps-selfupdate.lock
+    exec env XBPS_SELFUPDATE_LOCK=1 \\
+        flock --exclusive --timeout 900 "\$lockfile" "\$0"
+fi
+set -e
+xbps-install -S
+installed_ver=\$(xbps-query -p pkgver xbps 2>/dev/null)
+repo_ver=\$(xbps-query -R -p pkgver xbps 2>/dev/null)
+if [ "\$installed_ver" = "\$repo_ver" ]; then
+    exit 0
+fi
+if xbps-install -uy xbps; then
+    xbps-install -Suy
+    exit 0
+fi
+if [ -x "\$BACKUP_XBPS" ]; then
+    \$BACKUP_XBPS -uy xbps &&
+    xbps-install -Suy
+fi
+EOF
+    chmod +x /etc/cron.daily/xbps-selfupdate
 fi
