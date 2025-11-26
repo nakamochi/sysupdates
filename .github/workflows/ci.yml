@@ -5,5 +5,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
+      - name: Check last git commit signature against trusted keys
+        run: bash -x ./test/check-last-commit-signature-key.sh
