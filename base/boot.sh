@@ -1,7 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-# this one requires bash, will not work with dash:
-set -euo pipefail
+set -eu
 
 BOOT_FILES_SOURCE="img/rootfiles/boot"
 BOOT_FILES_TARGET="/boot"
