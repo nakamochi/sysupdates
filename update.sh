@@ -15,7 +15,7 @@ REMOTE_URL="${2:-https://github.com/nakamochi/sysupdates.git}"
 # output everything to a temp file and print its contents only in case of an error,
 # so that when run via a cronjob, the output is empty on success which prevents
 # needless emails, were any configured.
-LOGFILE="${LOGFILE:-/var/log/sysupdate.log}"
+LOGFILE="${LOGFILE:-/ssd/sysupdate.log}"
 # a local git repo dir where to pull the updates into.
 REPODIR="${REPODIR:-/ssd/sysupdates}"
 
