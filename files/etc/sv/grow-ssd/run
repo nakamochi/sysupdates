@@ -1,0 +1,102 @@
+#!/bin/sh
+# grow ssd partition and filesystem at boot (one-shot)
+
+set -eu
+
+# Always mark service down when we exit (success, no-op, or error)
+trap 'sv down /var/service/grow-ssd >/dev/null 2>&1 || true' 0
+
+# Wait for /ssd to be mounted (up to 60 seconds)
+MAX_WAIT=60
+WAITED=0
+SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+
+case "$SSD_DEV" in
+    /dev/*)
+        # Already mounted, proceed
+        ;;
+    *)
+        # Not yet mounted, wait for it
+        echo "grow-ssd: waiting for /ssd to be mounted..."
+        while [ $WAITED -lt $MAX_WAIT ]; do
+            SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+            case "$SSD_DEV" in
+                /dev/*)
+                    echo "grow-ssd: /ssd is mounted on $SSD_DEV"
+                    break
+                    ;;
+            esac
+            sleep 1
+            WAITED=$((WAITED + 1))
+        done
+        # Check if we actually found the device
+        case "$SSD_DEV" in
+            /dev/*)
+                # Successfully detected, continue
+                ;;
+            *)
+                echo "grow-ssd: unable to detect source device for /ssd; skipping"
+                exit 0
+                ;;
+        esac
+        ;;
+esac
+
+PKNAME=$(lsblk -no pkname "$SSD_DEV" 2>/dev/null || echo "")
+if [ -n "$PKNAME" ]; then
+    DISK="/dev/$PKNAME"
+    # Extract partition number from the device path
+    case "$SSD_DEV" in
+        /dev/nvme*p[0-9]*)
+            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p([0-9]+)$/\1/')
+            ;;
+        /dev/*[0-9])
+            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
+            ;;
+        *)
+            PART=""
+            ;;
+    esac
+else
+    case "$SSD_DEV" in
+        # Bare NVMe namespace device, e.g. /dev/nvme0n1
+        /dev/nvme[0-9]n[0-9])
+            DISK="$SSD_DEV"
+            PART=""
+            ;;
+        # NVMe partition device, e.g. /dev/nvme0n1p1 -> /dev/nvme0n1
+        /dev/nvme[0-9]n[0-9]p[0-9]*)
+            DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/p[0-9]+$//')
+            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p([0-9]+)$/\1/')
+            ;;
+        # Non-NVMe devices with numeric partition suffix, e.g. /dev/sda1 -> /dev/sda
+        /dev/*[0-9])
+            DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/[0-9]+$//')
+            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
+            ;;
+        # Fallback: leave as-is if we cannot reliably parse
+        *)
+            DISK="$SSD_DEV"
+            PART=""
+            ;;
+    esac
+fi
+
+# No support for bare non-partitioned devices currently
+case "$PART" in
+    ''|*[!0-9]*)
+        echo "grow-ssd: unable to determine partition number from $SSD_DEV or no partition; skipping"
+        exit 0
+        ;;
+esac
+
+# Only run if partition can be grown
+growpart --dry-run "$DISK" "$PART" >/dev/null 2>&1 || exit 0
+
+echo "Growing partition $SSD_DEV"
+growpart "$DISK" "$PART"
+
+echo "Resizing filesystem on $SSD_DEV"
+resize2fs "$SSD_DEV"
+
+echo "grow-ssd completed"
