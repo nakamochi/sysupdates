@@ -1,0 +1,39 @@
+#!/bin/sh
+# grow ssd partition and filesystem at boot (one-shot)
+
+set -e
+
+SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+case "$SSD_DEV" in
+    /dev/*) ;;
+    *)
+        echo "grow-ssd: unable to detect source device for /ssd; skipping"
+        exit 0
+        ;;
+esac
+
+PKNAME=$(lsblk -no pkname "$SSD_DEV" 2>/dev/null || echo "")
+if [ -n "$PKNAME" ]; then
+    DISK="/dev/$PKNAME"
+else
+    DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/p?[0-9]+$//')
+fi
+
+PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p?([0-9]+)$/\1/')
+case "$PART" in
+    ''|*[!0-9]*)
+        echo "grow-ssd: unable to determine partition number from $SSD_DEV; skipping"
+        exit 0
+        ;;
+esac
+
+# Only run if partition can be grown
+growpart --dry-run "$DISK" "$PART" >/dev/null 2>&1 || exit 0
+
+echo "Growing partition $SSD_DEV"
+growpart "$DISK" "$PART"
+
+echo "Resizing filesystem on $SSD_DEV"
+resize2fs "$SSD_DEV"
+
+echo "grow-ssd completed"
