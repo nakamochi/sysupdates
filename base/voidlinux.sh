@@ -25,7 +25,23 @@ fi
 
 # install required packages and config files
 set -e
-xbps-install -y opendoas tar gzip curl diffutils
+xbps-install -y \
+    cloud-guest-utils \
+    curl \
+    diffutils \
+    gzip \
+    opendoas \
+    tar
+
+# grow ssd partition and filesystem at boot (one-shot)
+GROW_SSD_SVDIR=etc/sv/grow-ssd
+mkdir -p /$GROW_SSD_SVDIR
+mkdir -p /$GROW_SSD_SVDIR/log
+if [ ! -f /$GROW_SSD_SVDIR/run ]; then
+    cp "$SYSUPDATES_ROOTDIR/files/$GROW_SSD_SVDIR/run" /$GROW_SSD_SVDIR/run
+    chmod +x /$GROW_SSD_SVDIR/run
+fi
+ln -sfT /$GROW_SSD_SVDIR /var/service/grow-ssd
 
 # openbsd's doas util config, a minial replacement of sudo
 if [ ! -f /etc/doas.conf ]; then
