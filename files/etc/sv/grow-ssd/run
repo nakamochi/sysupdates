@@ -7,29 +7,40 @@ set -eu
 trap 'sv down /var/service/grow-ssd >/dev/null 2>&1 || true' 0
 
 # Wait for /ssd to be mounted (up to 60 seconds)
+MAX_WAIT=60
+WAITED=0
 SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
-if [ -z "$SSD_DEV" ] || [ "${SSD_DEV#/dev/}" = "$SSD_DEV" ]; then
-    echo "grow-ssd: waiting for /ssd to be mounted..."
-    MAX_WAIT=60
-    WAITED=0
-    while [ $WAITED -lt $MAX_WAIT ]; do
-        SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
-        case "$SSD_DEV" in
-            /dev/*)
-                echo "grow-ssd: /ssd is mounted on $SSD_DEV"
-                break
-                ;;
-        esac
-        sleep 1
-        WAITED=$((WAITED + 1))
-    done
-fi
 
-# Check if we timed out or found the device
+case "$SSD_DEV" in
+    /dev/*) 
+        # Already mounted, proceed
+        ;;
+    *)
+        # Not yet mounted, wait for it
+        echo "grow-ssd: waiting for /ssd to be mounted..."
+        while [ $WAITED -lt $MAX_WAIT ]; do
+            SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+            case "$SSD_DEV" in
+                /dev/*)
+                    echo "grow-ssd: /ssd is mounted on $SSD_DEV"
+                    break
+                    ;;
+            esac
+            sleep 1
+            WAITED=$((WAITED + 1))
+        done
+        ;;
+esac
+
+# Check if we found the device
 case "$SSD_DEV" in
     /dev/*) ;;
     *)
-        echo "grow-ssd: unable to detect source device for /ssd after ${WAITED:-0}s; skipping"
+        if [ $WAITED -gt 0 ]; then
+            echo "grow-ssd: unable to detect source device for /ssd after ${WAITED}s; skipping"
+        else
+            echo "grow-ssd: unable to detect source device for /ssd; skipping"
+        fi
         exit 0
         ;;
 esac
