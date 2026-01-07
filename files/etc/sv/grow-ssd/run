@@ -6,11 +6,27 @@ set -eu
 # Always mark service down when we exit (success, no-op, or error)
 trap 'sv down /var/service/grow-ssd >/dev/null 2>&1 || true' 0
 
-SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+# Wait for /ssd to be mounted (up to 60 seconds)
+echo "grow-ssd: waiting for /ssd to be mounted..."
+MAX_WAIT=60
+WAITED=0
+while [ $WAITED -lt $MAX_WAIT ]; do
+    SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
+    case "$SSD_DEV" in
+        /dev/*) 
+            echo "grow-ssd: /ssd is mounted on $SSD_DEV"
+            break
+            ;;
+    esac
+    sleep 1
+    WAITED=$((WAITED + 1))
+done
+
+# Check if we timed out or found the device
 case "$SSD_DEV" in
     /dev/*) ;;
     *)
-        echo "grow-ssd: unable to detect source device for /ssd; skipping"
+        echo "grow-ssd: unable to detect source device for /ssd after ${WAITED}s; skipping"
         exit 0
         ;;
 esac
