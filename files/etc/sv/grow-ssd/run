@@ -3,9 +3,6 @@
 
 set -eu
 
-# Always mark service down when we exit (success, no-op, or error)
-trap 'sv down /var/service/grow-ssd >/dev/null 2>&1 || true' 0
-
 # Wait for /ssd to be mounted (up to 60 seconds)
 MAX_WAIT=60
 WAITED=0
@@ -36,6 +33,7 @@ case "$SSD_DEV" in
                 ;;
             *)
                 echo "grow-ssd: unable to detect source device for /ssd; skipping"
+                sv down /var/service/grow-ssd >/dev/null 2>&1 || true
                 exit 0
                 ;;
         esac
@@ -86,12 +84,16 @@ fi
 case "$PART" in
     ''|*[!0-9]*)
         echo "grow-ssd: unable to determine partition number from $SSD_DEV or no partition; skipping"
+        sv down /var/service/grow-ssd >/dev/null 2>&1 || true
         exit 0
         ;;
 esac
 
 # Only run if partition can be grown
-growpart --dry-run "$DISK" "$PART" >/dev/null 2>&1 || exit 0
+growpart --dry-run "$DISK" "$PART" >/dev/null 2>&1 || {
+    sv down /var/service/grow-ssd >/dev/null 2>&1 || true
+    exit 0
+}
 
 echo "Growing partition $SSD_DEV"
 growpart "$DISK" "$PART"
@@ -100,3 +102,6 @@ echo "Resizing filesystem on $SSD_DEV"
 resize2fs "$SSD_DEV"
 
 echo "grow-ssd completed"
+
+# Disable the service after successful completion
+sv down /var/service/grow-ssd >/dev/null 2>&1 || true
