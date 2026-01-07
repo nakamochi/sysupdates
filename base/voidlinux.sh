@@ -41,6 +41,10 @@ if [ ! -f /$GROW_SSD_SVDIR/run ]; then
     cp "$SYSUPDATES_ROOTDIR/files/$GROW_SSD_SVDIR/run" /$GROW_SSD_SVDIR/run
     chmod +x /$GROW_SSD_SVDIR/run
 fi
+if [ ! -f /$GROW_SSD_SVDIR/log/run ]; then
+    cp "$SYSUPDATES_ROOTDIR/files/$GROW_SSD_SVDIR/log/run" /$GROW_SSD_SVDIR/log/run
+    chmod +x /$GROW_SSD_SVDIR/log/run
+fi
 ln -sfT /$GROW_SSD_SVDIR /var/service/grow-ssd
 
 # openbsd's doas util config, a minial replacement of sudo
