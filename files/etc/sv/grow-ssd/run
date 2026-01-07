@@ -13,7 +13,7 @@ WAITED=0
 while [ $WAITED -lt $MAX_WAIT ]; do
     SSD_DEV=$(findmnt -n -o SOURCE /ssd 2>/dev/null || echo "")
     case "$SSD_DEV" in
-        /dev/*) 
+        /dev/*)
             echo "grow-ssd: /ssd is mounted on $SSD_DEV"
             break
             ;;
