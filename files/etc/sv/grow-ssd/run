@@ -40,44 +40,34 @@ case "$SSD_DEV" in
         ;;
 esac
 
+# Parse disk and partition from the device path
+case "$SSD_DEV" in
+    # Bare NVMe namespace device, e.g. /dev/nvme0n1
+    /dev/nvme[0-9]n[0-9])
+        DISK="$SSD_DEV"
+        PART=""
+        ;;
+    # NVMe partition device, e.g. /dev/nvme0n1p1 -> /dev/nvme0n1
+    /dev/nvme[0-9]n[0-9]p[0-9]*)
+        DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/p[0-9]+$//')
+        PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p([0-9]+)$/\1/')
+        ;;
+    # Non-NVMe devices with numeric partition suffix, e.g. /dev/sda1 -> /dev/sda
+    /dev/*[0-9])
+        DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/[0-9]+$//')
+        PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
+        ;;
+    # Fallback: leave as-is if we cannot reliably parse
+    *)
+        DISK="$SSD_DEV"
+        PART=""
+        ;;
+esac
+
+# If the device has a parent (e.g., LVM, LUKS), use the parent as the disk
 PKNAME=$(lsblk -no pkname "$SSD_DEV" 2>/dev/null || echo "")
 if [ -n "$PKNAME" ]; then
     DISK="/dev/$PKNAME"
-    # Extract partition number from the device path
-    case "$SSD_DEV" in
-        /dev/nvme*p[0-9]*)
-            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p([0-9]+)$/\1/')
-            ;;
-        /dev/*[0-9])
-            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
-            ;;
-        *)
-            PART=""
-            ;;
-    esac
-else
-    case "$SSD_DEV" in
-        # Bare NVMe namespace device, e.g. /dev/nvme0n1
-        /dev/nvme[0-9]n[0-9])
-            DISK="$SSD_DEV"
-            PART=""
-            ;;
-        # NVMe partition device, e.g. /dev/nvme0n1p1 -> /dev/nvme0n1
-        /dev/nvme[0-9]n[0-9]p[0-9]*)
-            DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/p[0-9]+$//')
-            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*p([0-9]+)$/\1/')
-            ;;
-        # Non-NVMe devices with numeric partition suffix, e.g. /dev/sda1 -> /dev/sda
-        /dev/*[0-9])
-            DISK=$(printf '%s\n' "$SSD_DEV" | sed -E 's/[0-9]+$//')
-            PART=$(printf '%s\n' "$SSD_DEV" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
-            ;;
-        # Fallback: leave as-is if we cannot reliably parse
-        *)
-            DISK="$SSD_DEV"
-            PART=""
-            ;;
-    esac
 fi
 
 # No support for bare non-partitioned devices currently
