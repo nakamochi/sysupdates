@@ -89,7 +89,7 @@ esac
 # Validate device paths before proceeding with potentially destructive operations
 # Ensure DISK matches expected block device patterns
 case "$DISK" in
-    /dev/sd[a-z]|/dev/sd[a-z][a-z]|/dev/nvme[0-9]n[0-9]|/dev/nvme[0-9][0-9]n[0-9]|/dev/mmcblk[0-9]|/dev/vd[a-z])
+    /dev/sd[a-z]|/dev/sd[a-z][a-z]|/dev/nvme[0-9]*n[0-9]*|/dev/mmcblk[0-9]*|/dev/vd[a-z])
         # Valid block device pattern
         ;;
     *)
@@ -114,7 +114,8 @@ if ! [ -b "$SSD_DEV" ]; then
 fi
 
 # Validate that PART is a reasonable partition number (1-128)
-if [ "$PART" -lt 1 ] || [ "$PART" -gt 128 ]; then
+# Note: PART is already validated to be numeric at line 82, but we add range check for safety
+if [ "$PART" -lt 1 ] 2>/dev/null || [ "$PART" -gt 128 ] 2>/dev/null; then
     echo "grow-ssd: partition number $PART is out of valid range (1-128); skipping"
     sv down /var/service/grow-ssd >/dev/null 2>&1 || true
     exit 0
