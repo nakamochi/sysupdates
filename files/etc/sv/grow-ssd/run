@@ -86,6 +86,40 @@ case "$PART" in
         ;;
 esac
 
+# Validate device paths before proceeding with potentially destructive operations
+# Ensure DISK matches expected block device patterns
+case "$DISK" in
+    /dev/sd[a-z]|/dev/sd[a-z][a-z]|/dev/nvme[0-9]n[0-9]|/dev/nvme[0-9][0-9]n[0-9]|/dev/mmcblk[0-9]|/dev/vd[a-z])
+        # Valid block device pattern
+        ;;
+    *)
+        echo "grow-ssd: device path '$DISK' does not match expected block device patterns; skipping for safety"
+        sv down /var/service/grow-ssd >/dev/null 2>&1 || true
+        exit 0
+        ;;
+esac
+
+# Ensure DISK exists and is a block device
+if ! [ -b "$DISK" ]; then
+    echo "grow-ssd: '$DISK' is not a block device; skipping"
+    sv down /var/service/grow-ssd >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# Ensure SSD_DEV exists and is a block device
+if ! [ -b "$SSD_DEV" ]; then
+    echo "grow-ssd: '$SSD_DEV' is not a block device; skipping"
+    sv down /var/service/grow-ssd >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# Validate that PART is a reasonable partition number (1-128)
+if [ "$PART" -lt 1 ] || [ "$PART" -gt 128 ]; then
+    echo "grow-ssd: partition number $PART is out of valid range (1-128); skipping"
+    sv down /var/service/grow-ssd >/dev/null 2>&1 || true
+    exit 0
+fi
+
 # Only run if partition can be grown
 growpart --dry-run "$DISK" "$PART" >/dev/null 2>&1 || {
     sv down /var/service/grow-ssd >/dev/null 2>&1 || true
