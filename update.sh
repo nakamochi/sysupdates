@@ -58,7 +58,7 @@ if ! ./apply.sh >> "$LOGFILE" 2>&1; then
     exit 1
 else
     # read commit from $REPODIR even if apply.sh changed CWD; write atomically and log failures
-    if hash="$(git -C "$REPODIR" rev-parse --short=12 HEAD 2>>"$LOGFILE")"; then
+    if hash="$(git -C "$REPODIR" rev-parse --short HEAD 2>>"$LOGFILE")"; then
         tmp=/etc/sysupdates-applied.$$
         printf '%s\n' "$hash" > "$tmp" &&
         chmod 0644 "$tmp" &&
