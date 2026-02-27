@@ -50,7 +50,7 @@ do
     echo "service start suspended until clock sync"
     sleep 5
 done
-exec chpst -u lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
+exec chpst -u lnd:tor -U lnd $LND_HOME/$LND_VERSION_DIR_AARCH64/lnd -C /home/lnd/lnd.mainnet.conf 2>&1
 EOF
     chmod +x /$LND_SVDIR/run.new
     test -f /$LND_SVDIR/run && diff /$LND_SVDIR/run /$LND_SVDIR/run.new || {
