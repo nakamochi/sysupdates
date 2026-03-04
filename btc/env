@@ -32,7 +32,7 @@ bitcoind_svc_install() {
 
     # logging facility
     if [ ! -f /$BITCOIN_SVDIR/log/run ]; then
-        cp "$SYSUPDATES_ROOTDIR/files/$BITCOIN_SVDIR/log/run" /$BITCOIN_SVDIR/log/
+        cp "$SYSUPDATES_ROOTDIR/img/rootfiles/$BITCOIN_SVDIR/log/run" /$BITCOIN_SVDIR/log/
         chmod +x /$BITCOIN_SVDIR/log/run
     fi
 

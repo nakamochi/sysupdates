@@ -34,7 +34,7 @@ lnd_svc_install() {
 
     # logging facility
     if [ ! -f /$LND_SVDIR/log/run ]; then
-        cp "$SYSUPDATES_ROOTDIR"/files/$LND_SVDIR/log/run /$LND_SVDIR/log/
+        cp "$SYSUPDATES_ROOTDIR"/img/rootfiles/$LND_SVDIR/log/run /$LND_SVDIR/log/
         chmod +x /$LND_SVDIR/log/run
     fi
 
