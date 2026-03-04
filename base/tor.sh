@@ -11,3 +11,6 @@ test -f /$conffile && diff /$conffile img/rootfiles/$conffile || {
     # don't touch the service if on manual control
     test ! -f /etc/sv/tor/down && sv restart tor
 }
+# ensure correct permissions for Tor datadir on SSD
+# needs to be group readable for control auth cookie access
+test -d /ssd/tor && chmod 750 /ssd/tor
