@@ -27,6 +27,9 @@ cd "$rootdir" || exit 1
 printf "######## tor\n" 1>&2
 cd "$rootdir" || exit 1
 ./base/tor.sh || exit_code=$?
+printf "######## users / groups\n" 1>&2
+cd "$rootdir" || exit 1
+./base/user_group.sh || exit 1
 
 # nakamochi daemon and gui (ndg)
 printf "######## ndg\n" 1>&2
