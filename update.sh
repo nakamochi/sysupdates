@@ -57,12 +57,24 @@ if ! ./apply.sh >> "$LOGFILE" 2>&1; then
     cat "$LOGFILE"
     exit 1
 else
-    # read commit from $REPODIR even if apply.sh changed CWD; write atomically and log failures
     if hash="$(git -C "$REPODIR" rev-parse --short HEAD 2>>"$LOGFILE")"; then
-        tmp=/etc/sysupdates-applied.$$
-        printf '%s\n' "$hash" > "$tmp" &&
-        chmod 0644 "$tmp" &&
-        mv -f "$tmp" /etc/sysupdates-applied
+        old_hash="$(cat /etc/sysupdates-applied 2>/dev/null || true)"
+
+        if [ "$hash" != "$old_hash" ]; then
+            tmp="$(mktemp /run/sysupdates-applied.XXXXXX)" || exit 1
+            printf '%s\n' "$hash" > "$tmp" || {
+                rm -f "$tmp"
+                exit 1
+            }
+            chmod 0644 "$tmp" || {
+                rm -f "$tmp"
+                exit 1
+            }
+            mv -f "$tmp" /etc/sysupdates-applied || {
+                rm -f "$tmp"
+                exit 1
+            }
+        fi
     else
         echo "ERROR: unable to determine current git commit" >> "$LOGFILE"
         cat "$LOGFILE"
