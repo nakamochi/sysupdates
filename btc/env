@@ -1,6 +1,9 @@
 #!/bin/sh
 # shellcheck disable=SC2015,SC3043
 
+# shellcheck source=lib/files.sh
+. "$SYSUPDATES_ROOTDIR/lib/files.sh"
+
 BITCOIN_CORE_VERSION=29.2
 BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-$BITCOIN_CORE_VERSION
 BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_CORE_VERSION/bitcoin-$BITCOIN_CORE_VERSION-aarch64-linux-gnu.tar.gz
@@ -53,8 +56,13 @@ EOF
 }
 
 bitcoin_cli_install() {
-    mkdir -p /opt/bin
-    cat <<EOF > /opt/bin/bitcoin-cli.sh
+    tmp="$(mktemp /run/bitcoin-cli.sh.XXXXXX)" || return 1
+    mkdir -p /opt/bin || {
+    	rm -f "$tmp"
+    	return 1
+	}
+
+    if ! cat > "$tmp" <<EOF
 #!/bin/sh
 set -eu
 CLI=$BITCOIN_HOME/$BITCOIN_CORE_VERSION_DIR_AARCH64/bin/bitcoin-cli
@@ -62,7 +70,12 @@ DATA=/ssd/bitcoind/mainnet
 CHAIN=main
 exec doas -u bitcoind \$CLI -datadir=\$DATA -chain=\$CHAIN "\$@"
 EOF
-    chmod +x /opt/bin/bitcoin-cli.sh
+    then
+        rm -f "$tmp"
+        return 1
+    fi
+
+    write_if_changed "$tmp" /opt/bin/bitcoin-cli.sh 0755 || return 1
 }
 
 bitcoin_apply() {

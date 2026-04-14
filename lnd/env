@@ -1,6 +1,9 @@
 #!/bin/sh
 # shellcheck disable=SC2015,SC3043
 
+# shellcheck source=lib/files.sh
+. "$SYSUPDATES_ROOTDIR/lib/files.sh"
+
 LND_VERSION=0.20.1
 LND_VERSION_DIR_AARCH64=lnd-linux-arm64-v$LND_VERSION-beta
 LND_URL_AARCH64=https://github.com/lightningnetwork/lnd/releases/download/v$LND_VERSION-beta/lnd-linux-arm64-v$LND_VERSION-beta.tar.gz
@@ -65,14 +68,24 @@ EOF
 }
 
 lnd_cli_install() {
-    mkdir -p /opt/bin
-    cat <<EOF > /opt/bin/lncli.sh
+    tmp="$(mktemp /run/lncli.sh.XXXXXX)" || return 1
+    mkdir -p /opt/bin || {
+        rm -f "$tmp"
+        return 1
+    }
+
+    if ! cat > "$tmp" <<EOF
 #!/bin/sh
 set -e
 cli=$LND_HOME/$LND_VERSION_DIR_AARCH64/lncli
 exec doas -u lnd \$cli --macaroonpath /ssd/lnd/data/chain/bitcoin/mainnet/admin.macaroon "\$@"
 EOF
-    chmod +x /opt/bin/lncli.sh
+    then
+        rm -f "$tmp"
+        return 1
+    fi
+
+    write_if_changed "$tmp" /opt/bin/lncli.sh 0755 || return 1
 }
 
 lnd_apply() {
