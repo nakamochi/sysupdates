@@ -9,5 +9,14 @@ jobs:
           fetch-depth: 0
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
+      - name: Set up shfmt
+        uses: pollenjp/setup-shfmt@v1
+      - name: Check shell formatting
+        run: |
+            files="$(find . \
+                \( -path './.git' -o -path './img' \) -prune -o \
+                -type f \( -name '*.sh' -o -path './btc/env' -o -path './lnd/env' -o -path './ndg/env' \) \
+                -print)"
+            echo "$files" | xargs shfmt -d -i 4 -ci
       - name: Check last git commit signature against trusted keys
         run: bash -x ./test/check-last-commit-signature-key.sh

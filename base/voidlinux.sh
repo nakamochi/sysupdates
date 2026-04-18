@@ -15,7 +15,7 @@ if [ ! -f /etc/cron.hourly/sysupdate ]; then
         mv /etc/cron.daily/sysupdate /etc/cron.hourly/
     else
         # run updates approx. every hour
-        cat <<EOF > /etc/cron.hourly/sysupdate
+        cat <<EOF >/etc/cron.hourly/sysupdate
 #!/bin/sh
 exec /ssd/sysupdates/update.sh "$SYSUPDATES_CHANNEL"
 EOF
@@ -49,7 +49,7 @@ ln -sfT /$GROW_SSD_SVDIR /var/service/grow-ssd
 
 # openbsd's doas util config, a minial replacement of sudo
 if [ ! -f /etc/doas.conf ]; then
-    cat <<EOF > /etc/doas.conf
+    cat <<EOF >/etc/doas.conf
 permit nopass root
 permit setenv { -ENV PS1=\$DOAS_PS1 SSH_AUTH_SOCK } :wheel
 EOF
@@ -58,7 +58,7 @@ fi
 # automatically update xbps package database and xbps itself daily
 # after xbps update, update also whole system to ensure consistency
 if [ ! -f /etc/cron.daily/xbps-selfupdate ]; then
-    cat <<EOF > /etc/cron.daily/xbps-selfupdate
+    cat <<EOF >/etc/cron.daily/xbps-selfupdate
 #!/bin/sh
 BACKUP_XBPS="/usr/local/bin/xbps-install.static"
 if [ -z "\$XBPS_SELFUPDATE_LOCK" ]; then

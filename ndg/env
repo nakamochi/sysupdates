@@ -10,7 +10,7 @@ NDG_BINDIR=$NDG_HOME/$NDG_VERSION
 
 ndg_bin_install() {
     cd $NDG_HOME || return 1
-    test -f $NDG_BINDIR/nd && return 0;
+    test -f $NDG_BINDIR/nd && return 0
     local targz="ndg-$NDG_VERSION.tar.gz"
     if ! curl -sSL -o "$targz" "$NDG_URL_AARCH64"; then
         printf "ERROR: unable to download %s\n" "$NDG_URL_AARCH64" 1>&2
@@ -37,7 +37,7 @@ ndg_svc_install() {
         ln -sfT /usr/bin/vlogger $svdir/log/run
     fi
 
-    cat <<EOF > $svdir/finish.new
+    cat <<EOF >$svdir/finish.new
 #!/bin/sh
 # workaround https://github.com/nakamochi/ndg/issues/12
 pkill -9 ngui
@@ -46,7 +46,7 @@ EOF
     test -f $svdir/finish && diff $svdir/finish $svdir/finish.new || mv $svdir/finish.new $svdir/finish
     rm -f $svdir/finish.new
 
-    cat <<EOF > $svdir/run.new
+    cat <<EOF >$svdir/run.new
 #!/bin/sh
 exec $NDG_BINDIR/nd -conf /home/uiuser/conf.json -gui $NDG_BINDIR/ngui -gui-user uiuser -wpa /var/run/wpa_supplicant/wlan0 2>&1
 EOF
