@@ -17,7 +17,7 @@ LND_SVDIR=etc/sv/lnd
 lnd_bin_install() {
     cd $LND_HOME || return 1
     local lnd_targz=$LND_VERSION_DIR_AARCH64.tar.gz
-    test -f $LND_VERSION_DIR_AARCH64/lnd && return 0;
+    test -f $LND_VERSION_DIR_AARCH64/lnd && return 0
     curl -fSL -o $lnd_targz "$LND_URL_AARCH64"
     if [ $? -ne 0 ]; then
         printf "ERROR: unable to download $LND_URL_AARCH64\n" 1>&2
@@ -42,7 +42,7 @@ lnd_svc_install() {
     fi
 
     # the actual lnd service
-    cat <<EOF > /$LND_SVDIR/run.new
+    cat <<EOF >/$LND_SVDIR/run.new
 #!/bin/sh
 [ -r conf ] && . ./conf
 exec 2>&1
@@ -74,13 +74,12 @@ lnd_cli_install() {
         return 1
     }
 
-    if ! cat > "$tmp" <<EOF
+    if ! cat >"$tmp" <<EOF; then
 #!/bin/sh
 set -e
 cli=$LND_HOME/$LND_VERSION_DIR_AARCH64/lncli
 exec doas -u lnd \$cli --macaroonpath /ssd/lnd/data/chain/bitcoin/mainnet/admin.macaroon "\$@"
 EOF
-    then
         rm -f "$tmp"
         return 1
     fi

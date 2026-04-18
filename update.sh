@@ -25,25 +25,25 @@ if [ -z "$NAKAMOCHI_SYSUPDATE_LOCK" ]; then
     # use the script itself as the lock file
     lockfile=$0
     exec env NAKAMOCHI_SYSUPDATE_LOCK=1 \
-      flock --exclusive --timeout 900 "$lockfile" "$0" "$@"
+        flock --exclusive --timeout 900 "$lockfile" "$0" "$@"
 fi
 
 # start of the sysupdate; trim prevously logged runs
-date > "$LOGFILE"
+date >"$LOGFILE"
 
 # fetch updates from remote
 cd "$REPODIR" || exit 1
 if ! {
     echo "Fetching updates from $REMOTE_URL, branch $BRANCH" &&
-    git remote set-url origin "$REMOTE_URL" &&
-    git fetch origin &&          # in case the refspec is unknown locally yet
-    git reset --hard HEAD &&     # remove local changes
-    git clean -fd &&             # force-delete untracked files
-    git checkout "$BRANCH" &&
-    git pull --rebase --verify-signatures &&
-    git submodule sync --recursive &&
-    git submodule update --init --recursive
-} >> "$LOGFILE" 2>&1 ; then
+        git remote set-url origin "$REMOTE_URL" &&
+        git fetch origin &&      # in case the refspec is unknown locally yet
+        git reset --hard HEAD && # remove local changes
+        git clean -fd &&         # force-delete untracked files
+        git checkout "$BRANCH" &&
+        git pull --rebase --verify-signatures &&
+        git submodule sync --recursive &&
+        git submodule update --init --recursive
+} >>"$LOGFILE" 2>&1; then
     echo "ERROR: repository update failed"
     cat "$LOGFILE"
     exit 1
@@ -52,7 +52,7 @@ fi
 # run repo's update script
 export SYSUPDATES_ROOTDIR="$REPODIR"
 export SYSUPDATES_CHANNEL="$BRANCH"
-if ! ./apply.sh >> "$LOGFILE" 2>&1; then
+if ! ./apply.sh >>"$LOGFILE" 2>&1; then
     echo "ERROR: apply failed"
     cat "$LOGFILE"
     exit 1
@@ -62,7 +62,7 @@ else
 
         if [ "$hash" != "$old_hash" ]; then
             tmp="$(mktemp /run/sysupdates-applied.XXXXXX)" || exit 1
-            printf '%s\n' "$hash" > "$tmp" || {
+            printf '%s\n' "$hash" >"$tmp" || {
                 rm -f "$tmp"
                 exit 1
             }
@@ -76,7 +76,7 @@ else
             }
         fi
     else
-        echo "ERROR: unable to determine current git commit" >> "$LOGFILE"
+        echo "ERROR: unable to determine current git commit" >>"$LOGFILE"
         cat "$LOGFILE"
         exit 1
     fi
