@@ -61,6 +61,22 @@ if [ ! -f /etc/cron.daily/xbps-selfupdate ]; then
     cat <<EOF >/etc/cron.daily/xbps-selfupdate
 #!/bin/sh
 BACKUP_XBPS="/usr/local/bin/xbps-install.static"
+ensure_socklog_tweaks() {
+    tmp_run=\$(mktemp)
+    cat >"\$tmp_run" <<'EOFX'
+#!/bin/sh
+exec svlogd -tt -b 65536 -l 2000 /var/log/socklog/\* #2>/dev/tty12
+EOFX
+    if [ -f /etc/sv/socklog-unix/log/run ] && cmp -s "\$tmp_run" /etc/sv/socklog-unix/log/run; then
+        rm -f "\$tmp_run"
+        return 0
+    fi
+    chmod 755 "\$tmp_run"
+    mv "\$tmp_run" /etc/sv/socklog-unix/log/run
+    if sv status socklog-unix >/dev/null 2>&1; then
+        sv restart socklog-unix/log
+    fi
+}
 if [ -z "\$XBPS_SELFUPDATE_LOCK" ]; then
     lockfile=/run/lock/xbps-selfupdate.lock
     exec env XBPS_SELFUPDATE_LOCK=1 \\
@@ -75,11 +91,13 @@ if [ "\$installed_ver" = "\$repo_ver" ]; then
 fi
 if xbps-install -uy xbps; then
     xbps-install -Suy
+    ensure_socklog_tweaks
     exit 0
 fi
 if [ -x "\$BACKUP_XBPS" ]; then
     \$BACKUP_XBPS -uy xbps &&
-    xbps-install -Suy
+    xbps-install -Suy &&
+    ensure_socklog_tweaks
 fi
 EOF
     chmod +x /etc/cron.daily/xbps-selfupdate
