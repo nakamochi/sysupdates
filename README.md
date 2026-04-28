@@ -1,16 +1,13 @@
 # system updates
 
-the plan is for this repo to contain all system updates, incremental in a form
-of text/source code. a node periodically runs the `update.sh` script which pulls
-the repo to receive updates executes `apply.sh`. the latter then makes changes
-and updates the operating system.
+this repo contains system updates applied to nodes in incremental form as
+text/source code. a node periodically runs the `update.sh` script, which pulls
+the repo and executes `apply.sh` to apply any new changes to the system.
 
-at the moment, all updates are executed in form of shell scripts. these are
-error-prone and hard to reason about in a comprehesive way once the codebase
-gets sufficiently large. the short term goal is to migrate shell scripts to
-something more managaeble like [saltstack](https://github.com/saltstack/salt)
-but with less resource requirements, suitable for embedded devices without
-python dependencies.
+updates are implemented as shell scripts that perform incremental changes to
+the system (e.g. upgrading services, adjusting configuration, applying system
+fixes). all changes are expected to be idempotent and safe to run on already
+updated systems.
 
 typical update examples are: upgrade bitcoind, lnd and other services, system
 packages, improve configuration of components such as firewall.
@@ -30,6 +27,23 @@ the `update.sh` script once a day. The script requires `REPODIR` and `LOGFILE`
 env variables set.
 
 TODO: add a list of supported platforms; the "native" is void linux.
+
+## release channels
+
+this repository uses two long-lived branches to represent update channels:
+
+- `master` – **stable / production channel** (**stable** in UI)
+- `dev` – **development channel** (**edge** in UI)
+
+by default, nodes should track `master`, which is considered stable and safe for production use.
+
+### promoting changes from `dev` to `master`
+
+when a change is merged to `dev`, it should be tested on a physical device for at least a few days before being merged to `master`.
+
+    git checkout master
+    git merge -S dev
+    git push
 
 ## testing a live change
 
