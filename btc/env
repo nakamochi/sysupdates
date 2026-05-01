@@ -4,10 +4,10 @@
 # shellcheck source=lib/files.sh
 . "$SYSUPDATES_ROOTDIR/lib/files.sh"
 
-BITCOIN_CORE_VERSION=29.2
+BITCOIN_CORE_VERSION=29.3
 BITCOIN_CORE_VERSION_DIR_AARCH64=bitcoin-$BITCOIN_CORE_VERSION
 BITCOIN_CORE_URL_AARCH64=https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_CORE_VERSION/bitcoin-$BITCOIN_CORE_VERSION-aarch64-linux-gnu.tar.gz
-BITCOIN_CORE_SHA256_AARCH64=f88f72a3c5bf526581aae573be8c1f62133eaecfe3d34646c9ffca7b79dfdc7a
+BITCOIN_CORE_SHA256_AARCH64=9b9269b396f629d29d449e1913587b56f8fa78393eb1db99314201938ccf8847
 
 # binaries and config root; data is elsewhere, in /ssd/bitcoind as per conf file.
 BITCOIN_HOME=/home/bitcoind
