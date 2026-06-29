@@ -20,10 +20,16 @@ cd "$rootdir" || exit 1
 # base os
 printf "######## boot\n" 1>&2
 cd "$rootdir" || exit 1
-./base/boot.sh || exit 1
+./base/boot.sh || {
+    echo "boot.sh failed, continuing..." >&2
+    exit_code=1
+}
 printf "######## base os\n" 1>&2
 cd "$rootdir" || exit 1
-./base/voidlinux.sh || exit 1
+./base/voidlinux.sh || {
+    echo "voidlinux.sh failed, continuing..." >&2
+    exit_code=1
+}
 printf "######## tor\n" 1>&2
 cd "$rootdir" || exit 1
 ./base/tor.sh || exit_code=$?
